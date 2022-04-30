@@ -1,21 +1,27 @@
 const express = require('express')
 const app = express()
+const Trie = require('./utils/Trie')
 
-let countryData = null
-const countryNames = []
+const countryNamesTrie = new Trie()
+const countryMap = new Map()
 
-const getCountryNames = () => {
+//const countryNames = []
+
+const buildMapAndTrie = (countryData) => {
   for (data of countryData) {
-    countryNames.push(data.name.common)
+    const countryName = data.name.common.toLowerCase()
+    countryMap.set(countryName, data)
+    //countryNames.push(name)
+    countryNamesTrie.insert(countryName)
   }
-  console.log(countryNames)
+  //console.log(countryNamesTrie.find('col'))
+  //console.log(countryMap.get('colombia'))
 }
 
 fetch('https://restcountries.com/v3.1/all')
   .then((res) => res.json())
-  .then((data) => {
-    countryData = data
-    getCountryNames()
+  .then((countryData) => {
+    buildMapAndTrie(countryData)
   })
 
 module.exports = app
