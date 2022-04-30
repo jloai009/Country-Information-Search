@@ -29,14 +29,15 @@ app.get('/api/search/:id', async (request, response, next) => {
   const id = request.params.id.toLocaleLowerCase()
   const matches = countryNamesTrie.find(id)
   response.json({
-    countries: matches.length === 1 ? countryMap.get(matches[0]) : matches,
+    countries: matches.length === 1 ? [countryMap.get(matches[0])] : matches,
   })
 })
 
 app.get('/api/get/:id', async (request, response, next) => {
   const id = request.params.id.toLocaleLowerCase()
+  console.log(countryMap.get(id))
   response.json({
-    countries: countryMap.get(id),
+    country: [countryMap.get(id)],
   })
 })
 
