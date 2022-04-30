@@ -1,73 +1,74 @@
 import React, { useState, useEffect } from 'react'
 import { nanoid } from 'nanoid'
 import axios from 'axios'
+import countryServices from './services/countries'
 
-const H1 = ({ text }) => <h1>{text}</h1>
+const SearchForm = ({ searchResults, setSearchResults }) => {
+  const [searchQuery, setSearchQuery] = useState('')
 
-const H2 = ({ text }) => <h2>{text}</h2>
+  const handleSearch = async (event) => {
+    const newSearchQuery = event.target.value
+    setSearchQuery(newSearchQuery)
+    let searchResults = []
+    if (newSearchQuery.length > 0) {
+      searchResults = await countryServices.searchCountry(newSearchQuery)
+    }
+    setSearchResults(searchResults)
+  }
 
-const H3 = ({ text }) => <h3>{text}</h3>
+  const selectCountry = async (countryName) => {
+    const country = await countryServices.getCountry(countryName)
+    setSearchQuery(countryName)
+    setSearchResults(country)
+  }
 
-const SearchForm = ({ searchStr, handleSearch }) => {
+  const Suggestions = () => {
+    if (searchQuery.length > 0 && searchResults.length == 0) {
+      return <div> No countries were found </div>
+    } else if (searchQuery.length !== 0 && searchResults.length > 1) {
+      return (
+        <div>
+          <ul>
+            {searchResults.slice(0, 9).map((countryName) => (
+              <li onClick={() => selectCountry(countryName)} key={countryName}>
+                {countryName}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    } else {
+      return null
+    }
+  }
+
   return (
     <div>
-      <form onSubmit={(event) => event.preventDefault()}>
-        <label htmlFor="search-bar">Search for a country:&ensp;</label>
+      <h2>Search for a country:</h2>
+      <form autoComplete="off" onSubmit={(event) => event.preventDefault()}>
         <input
           id="search-bar"
           placeholder={'Name of country'}
-          value={searchStr}
+          value={searchQuery}
           onChange={handleSearch}
         />
       </form>
+      <Suggestions />
     </div>
   )
 }
 
-const ResultsDisplay = ({
-  searchResultsDisplayed,
-  setSearchQuery,
-  setSearchResultsDisplayed,
-  searchResults,
-}) => {
-  if (
-    searchResultsDisplayed.length === 1 &&
-    searchResultsDisplayed[0].name.common !== 'Fetching Search Results...'
-  ) {
-    return <DisplayCountry country={searchResultsDisplayed[0]} />
+const DisplayCountry = ({ searchResults }) => {
+  if (searchResults.length !== 1) {
+    return null
   }
 
-  const showCountryHandler = (countryName) => {
-    setSearchQuery(countryName)
-    setSearchResultsDisplayed(
-      searchResults.filter((country) =>
-        country.name.common.toLowerCase().includes(countryName.toLowerCase())
-      )
-    )
-  }
-
+  const country = searchResults[0]
   return (
     <div>
-      {searchResultsDisplayed.length ? (
-        searchResultsDisplayed.map((country) => (
-          <p key={country.name.common}>
-            {country.name.common}
-            <button onClick={() => showCountryHandler(country.name.common)}>
-              show
-            </button>
-          </p>
-        ))
-      ) : (
-        <p>No countries were found</p>
-      )}
-    </div>
-  )
-}
-
-const DisplayCountry = ({ country }) => {
-  return (
-    <div>
-      <H3 text={country.name.common} />
+      <h3>
+        {country.name.official} - {country.cca2}
+      </h3>
       <img src={country.flags.png} alt={'Flag of ' + country.name.common} />
       <p>
         <strong>Capital: </strong>
@@ -91,7 +92,7 @@ const DisplayCountry = ({ country }) => {
 const WeatherDisplay = ({ country }) => {
   const [weatherData, setWeatherData] = useState([])
   const [fetchedData, setFechedData] = useState(false)
-  console.log(process.env.REACT_APP_API_KEY)
+  //console.log(process.env.REACT_APP_API_KEY)
   const restAPI =
     'http://api.weatherstack.com/current?access_key=' +
     process.env.REACT_APP_API_KEY +
@@ -105,7 +106,7 @@ const WeatherDisplay = ({ country }) => {
   }, [restAPI])
 
   if (fetchedData) {
-    console.log(weatherData)
+    //console.log(weatherData)
     return (
       <div>
         <h4>Weather in {country.capital}:</h4>
@@ -135,45 +136,15 @@ const WeatherDisplay = ({ country }) => {
 }
 
 const App = () => {
-  const [searchStr, setSearchQuery] = useState('')
-
-  const [searchResults, setSearchResults] = useState([
-    { name: { common: 'Fetching Search Results...' } },
-  ])
-
-  const [searchResultsDisplayed, setSearchResultsDisplayed] = useState([
-    { name: { common: 'Fetching Search Results...' } },
-  ])
-
-  useEffect(() => {
-    axios.get('https://restcountries.com/v3.1/all').then((promise) => {
-      setSearchResults(promise.data)
-      setSearchResultsDisplayed(promise.data)
-    })
-  }, [])
-
-  const handleSearch = (event) => {
-    setSearchQuery(event.target.value)
-    setSearchResultsDisplayed(
-      searchResults.filter((country) =>
-        country.name.common
-          .toLowerCase()
-          .includes(event.target.value.toLowerCase())
-      )
-    )
-  }
-
+  const [searchResults, setSearchResults] = useState([])
   return (
     <div>
-      <h1> Country Information Search</h1>
-      <SearchForm searchStr={searchStr} handleSearch={handleSearch} />
-      <H2 text="Search Results:" />
-      <ResultsDisplay
-        searchResultsDisplayed={searchResultsDisplayed}
-        setSearchQuery={setSearchQuery}
-        setSearchResultsDisplayed={setSearchResultsDisplayed}
+      <h1>Country Information Search</h1>
+      <SearchForm
         searchResults={searchResults}
+        setSearchResults={setSearchResults}
       />
+      <DisplayCountry searchResults={searchResults} />
     </div>
   )
 }
