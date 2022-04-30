@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { nanoid } from "nanoid";
-import axios from "axios";
+import React, { useState, useEffect } from 'react'
+import { nanoid } from 'nanoid'
+import axios from 'axios'
 
-const H1 = ({ text }) => <h1>{text}</h1>;
+const H1 = ({ text }) => <h1>{text}</h1>
 
-const H2 = ({ text }) => <h2>{text}</h2>;
+const H2 = ({ text }) => <h2>{text}</h2>
 
-const H3 = ({ text }) => <h3>{text}</h3>;
+const H3 = ({ text }) => <h3>{text}</h3>
 
 const SearchForm = ({ searchStr, handleSearch }) => {
   return (
@@ -15,14 +15,14 @@ const SearchForm = ({ searchStr, handleSearch }) => {
         <label htmlFor="search-bar">Search for a country:&ensp;</label>
         <input
           id="search-bar"
-          placeholder={"Name of country"}
+          placeholder={'Name of country'}
           value={searchStr}
           onChange={handleSearch}
         />
       </form>
     </div>
-  );
-};
+  )
+}
 
 const ResultsDisplay = ({
   searchResultsDisplayed,
@@ -32,19 +32,19 @@ const ResultsDisplay = ({
 }) => {
   if (
     searchResultsDisplayed.length === 1 &&
-    searchResultsDisplayed[0].name.common !== "Fetching Search Results..."
+    searchResultsDisplayed[0].name.common !== 'Fetching Search Results...'
   ) {
-    return <DisplayCountry country={searchResultsDisplayed[0]} />;
+    return <DisplayCountry country={searchResultsDisplayed[0]} />
   }
 
   const showCountryHandler = (countryName) => {
-    setSearchQuery(countryName);
+    setSearchQuery(countryName)
     setSearchResultsDisplayed(
       searchResults.filter((country) =>
         country.name.common.toLowerCase().includes(countryName.toLowerCase())
       )
-    );
-  };
+    )
+  }
 
   return (
     <div>
@@ -61,14 +61,14 @@ const ResultsDisplay = ({
         <p>No countries were found</p>
       )}
     </div>
-  );
-};
+  )
+}
 
 const DisplayCountry = ({ country }) => {
   return (
     <div>
       <H3 text={country.name.common} />
-      <img src={country.flags.png} alt={"Flag of " + country.name.common} />
+      <img src={country.flags.png} alt={'Flag of ' + country.name.common} />
       <p>
         <strong>Capital: </strong>
         {country.capital}
@@ -85,27 +85,27 @@ const DisplayCountry = ({ country }) => {
       </ul>
       <WeatherDisplay country={country} />
     </div>
-  );
-};
+  )
+}
 
 const WeatherDisplay = ({ country }) => {
-  const [weatherData, setWeatherData] = useState([]);
-  const [fetchedData, setFechedData] = useState(false);
-  console.log(process.env.REACT_APP_API_KEY);
+  const [weatherData, setWeatherData] = useState([])
+  const [fetchedData, setFechedData] = useState(false)
+  console.log(process.env.REACT_APP_API_KEY)
   const restAPI =
-    "http://api.weatherstack.com/current?access_key=" +
+    'http://api.weatherstack.com/current?access_key=' +
     process.env.REACT_APP_API_KEY +
-    `&query=${country.capital}`;
+    `&query=${country.capital}`
 
   useEffect(() => {
     axios.get(restAPI).then((promise) => {
-      setWeatherData(promise.data);
-      setFechedData(true);
-    });
-  }, [restAPI]);
+      setWeatherData(promise.data)
+      setFechedData(true)
+    })
+  }, [restAPI])
 
   if (fetchedData) {
-    console.log(weatherData);
+    console.log(weatherData)
     return (
       <div>
         <h4>Weather in {country.capital}:</h4>
@@ -115,53 +115,53 @@ const WeatherDisplay = ({ country }) => {
         </p>
         <img
           src={weatherData.current.weather_icons[0]}
-          alt={"Image describing weather of " + country.capital}
+          alt={'Image describing weather of ' + country.capital}
         />
         <p>
           <strong>Wind: </strong>
-          {weatherData.current.wind_speed} mph, direction:{" "}
+          {weatherData.current.wind_speed} mph, direction:{' '}
           {weatherData.current.wind_dir}
         </p>
       </div>
-    );
+    )
   } else {
     return (
       <div>
         <h3>Weather in {country.capital}:</h3>
         <p>Loading weather data...</p>
       </div>
-    );
+    )
   }
-};
+}
 
 const App = () => {
-  const [searchStr, setSearchQuery] = useState("");
+  const [searchStr, setSearchQuery] = useState('')
 
   const [searchResults, setSearchResults] = useState([
-    { name: { common: "Fetching Search Results..." } },
-  ]);
+    { name: { common: 'Fetching Search Results...' } },
+  ])
 
   const [searchResultsDisplayed, setSearchResultsDisplayed] = useState([
-    { name: { common: "Fetching Search Results..." } },
-  ]);
+    { name: { common: 'Fetching Search Results...' } },
+  ])
 
   useEffect(() => {
-    axios.get("https://restcountries.com/v3.1/all").then((promise) => {
-      setSearchResults(promise.data);
-      setSearchResultsDisplayed(promise.data);
-    });
-  }, []);
+    axios.get('https://restcountries.com/v3.1/all').then((promise) => {
+      setSearchResults(promise.data)
+      setSearchResultsDisplayed(promise.data)
+    })
+  }, [])
 
   const handleSearch = (event) => {
-    setSearchQuery(event.target.value);
+    setSearchQuery(event.target.value)
     setSearchResultsDisplayed(
       searchResults.filter((country) =>
         country.name.common
           .toLowerCase()
           .includes(event.target.value.toLowerCase())
       )
-    );
-  };
+    )
+  }
 
   return (
     <div>
@@ -175,7 +175,7 @@ const App = () => {
         searchResults={searchResults}
       />
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
