@@ -1,5 +1,8 @@
 const express = require('express')
+require('express-async-errors')
 const app = express()
+const cors = require('cors')
+const middleware = require('./utils/middleware')
 const Trie = require('./utils/Trie')
 
 const countryNamesTrie = new Trie()
@@ -23,5 +26,17 @@ fetch('https://restcountries.com/v3.1/all')
   .then((countryData) => {
     buildMapAndTrie(countryData)
   })
+
+app.use(cors())
+app.use(express.json())
+
+app.get('/api/countries/:id', async (request, response, next) => {
+  const id = request.params.id
+  console.log(id, 'hello world')
+  response.json({ helloWorld: 'helloWorld' })
+})
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app
