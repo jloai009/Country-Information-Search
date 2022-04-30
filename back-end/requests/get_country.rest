@@ -1,1 +1,1 @@
-GET http://localhost:3003/api/countries/ssss
+GET http://localhost:3003/api/get/united%20states
