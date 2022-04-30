@@ -8,17 +8,12 @@ const Trie = require('./utils/Trie')
 const countryNamesTrie = new Trie()
 const countryMap = new Map()
 
-//const countryNames = []
-
 const buildMapAndTrie = (countryData) => {
   for (data of countryData) {
     const countryName = data.name.common.toLowerCase()
     countryMap.set(countryName, data)
-    //countryNames.push(name)
     countryNamesTrie.insert(countryName)
   }
-  //console.log(countryNamesTrie.find('col'))
-  //console.log(countryMap.get('colombia'))
 }
 
 fetch('https://restcountries.com/v3.1/all')
@@ -30,10 +25,19 @@ fetch('https://restcountries.com/v3.1/all')
 app.use(cors())
 app.use(express.json())
 
-app.get('/api/countries/:id', async (request, response, next) => {
-  const id = request.params.id
-  console.log(id, 'hello world')
-  response.json({ helloWorld: 'helloWorld' })
+app.get('/api/search/:id', async (request, response, next) => {
+  const id = request.params.id.toLocaleLowerCase()
+  const matches = countryNamesTrie.find(id)
+  response.json({
+    countries: matches.length === 1 ? countryMap.get(matches[0]) : matches,
+  })
+})
+
+app.get('/api/get/:id', async (request, response, next) => {
+  const id = request.params.id.toLocaleLowerCase()
+  response.json({
+    countries: countryMap.get(id),
+  })
 })
 
 app.use(middleware.unknownEndpoint)
