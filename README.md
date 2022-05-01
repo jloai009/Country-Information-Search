@@ -8,9 +8,9 @@ Leverages the Trie data structure to efficiently process search queries and to p
 
 ## Built Using:
 
--JavaScript
--React
--Node.js
--Express
--HTML
--CSS
+- JavaScript
+- React
+- Node.js
+- Express
+- HTML
+- CSS
