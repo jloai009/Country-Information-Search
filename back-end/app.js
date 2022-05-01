@@ -23,6 +23,7 @@ fetch('https://restcountries.com/v3.1/all')
   })
 
 app.use(cors())
+app.use(express.static('build'))
 app.use(express.json())
 
 app.get('/api/search/:id', async (request, response, next) => {
