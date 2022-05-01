@@ -1,5 +1,6 @@
 const express = require('express')
 require('express-async-errors')
+const axios = require('axios')
 const app = express()
 const cors = require('cors')
 const middleware = require('./utils/middleware')
@@ -16,11 +17,9 @@ const buildMapAndTrie = (countryData) => {
   }
 }
 
-fetch('https://restcountries.com/v3.1/all')
-  .then((res) => res.json())
-  .then((countryData) => {
-    buildMapAndTrie(countryData)
-  })
+axios('https://restcountries.com/v3.1/all').then((countryData) => {
+  buildMapAndTrie(countryData.data)
+})
 
 app.use(cors())
 app.use(express.static('build'))
