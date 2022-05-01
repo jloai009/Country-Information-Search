@@ -5,15 +5,18 @@ import countryServices from './services/countries'
 
 const SearchForm = ({ searchResults, setSearchResults }) => {
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchInProgress, setSearchInProgress] = useState(false)
 
   const handleSearch = async (event) => {
     const newSearchQuery = event.target.value
+    setSearchInProgress(true)
     setSearchQuery(newSearchQuery)
     let searchResults = []
     if (newSearchQuery.length > 0) {
       searchResults = await countryServices.searchCountry(newSearchQuery)
     }
     setSearchResults(searchResults)
+    setSearchInProgress(false)
   }
 
   const selectCountry = async (countryName) => {
@@ -23,7 +26,11 @@ const SearchForm = ({ searchResults, setSearchResults }) => {
   }
 
   const Suggestions = () => {
-    if (searchQuery.length > 0 && searchResults.length == 0) {
+    if (
+      searchQuery.length > 0 &&
+      searchResults.length == 0 &&
+      !searchInProgress
+    ) {
       return <div> No countries were found </div>
     } else if (searchQuery.length !== 0 && searchResults.length > 1) {
       return (
@@ -69,70 +76,85 @@ const DisplayCountry = ({ searchResults }) => {
       <h3>
         {country.name.official} - {country.cca2}
       </h3>
-      <img src={country.flags.png} alt={'Flag of ' + country.name.common} />
-      <p>
+      <div>
+        <img src={country.flags.png} alt={'Flag of ' + country.name.common} />
+        <img
+          src={country.coatOfArms.png}
+          alt={'Coat of arms of ' + country.name.common}
+        />
+      </div>
+      <div>
         <strong>Capital: </strong>
         {country.capital}
-      </p>
-      <p>
+      </div>
+      <div>
         <strong>Population: </strong>
         {country.population.toLocaleString()}
-      </p>
-      <h4>Languages:</h4>
-      <ul>
-        {Object.values(country.languages).map((lang) => (
-          <li key={nanoid()}>{lang}</li>
-        ))}
-      </ul>
-      <WeatherDisplay country={country} />
+      </div>
+      <div>
+        <strong>Independent: </strong>
+        {country.independent ? 'Yes' : 'No'}
+      </div>
+      <div>
+        <strong>Member of the United Nations: </strong>
+        {country.unMember ? 'Yes' : 'No'}
+      </div>
+      <div>
+        <strong>Languages:</strong>
+        <ul>
+          {Object.values(country.languages).map((lang) => (
+            <li key={lang}>{lang}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <strong>Currencies: </strong>
+        <ul>
+          {Object.values(country.currencies).map((curr) => (
+            <li key={curr.name}>{curr.name}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <strong>Region: </strong>
+        {country.region}
+      </div>
+      <div>
+        <strong>Subregion: </strong>
+        {country.subregion}
+      </div>
+      <div>
+        <strong>Google Maps: </strong>
+        <a
+          href={country.maps.googleMaps}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {country.maps.googleMaps}
+        </a>
+      </div>
+      <div>
+        <strong>Timezones: </strong>
+        <ul>
+          {country.timezones.map((tm) => (
+            <li key={tm}>{tm}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <strong>Continents: </strong>
+        <ul>
+          {country.continents.map((cont) => (
+            <li key={cont}>{cont}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <strong>Start of week: </strong>
+        {country.startOfWeek}
+      </div>
     </div>
   )
-}
-
-const WeatherDisplay = ({ country }) => {
-  const [weatherData, setWeatherData] = useState([])
-  const [fetchedData, setFechedData] = useState(false)
-  //console.log(process.env.REACT_APP_API_KEY)
-  const restAPI =
-    'http://api.weatherstack.com/current?access_key=' +
-    process.env.REACT_APP_API_KEY +
-    `&query=${country.capital}`
-
-  useEffect(() => {
-    axios.get(restAPI).then((promise) => {
-      setWeatherData(promise.data)
-      setFechedData(true)
-    })
-  }, [restAPI])
-
-  if (fetchedData) {
-    //console.log(weatherData)
-    return (
-      <div>
-        <h4>Weather in {country.capital}:</h4>
-        <p>
-          <strong>Temperature: </strong>
-          {weatherData.current.temperature}
-        </p>
-        <img
-          src={weatherData.current.weather_icons[0]}
-          alt={'Image describing weather of ' + country.capital}
-        />
-        <p>
-          <strong>Wind: </strong>
-          {weatherData.current.wind_speed} mph, direction:{' '}
-          {weatherData.current.wind_dir}
-        </p>
-      </div>
-    )
-  } else {
-    return (
-      <div>
-        <h3>Weather in {country.capital}:</h3>
-        <p>Loading weather data...</p>
-      </div>
-    )
-  }
 }
 
 const App = () => {
