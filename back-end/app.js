@@ -35,7 +35,6 @@ app.get('/api/search/:id', async (request, response, next) => {
 
 app.get('/api/get/:id', async (request, response, next) => {
   const id = request.params.id.toLocaleLowerCase()
-  console.log(countryMap.get(id))
   response.json({
     country: [countryMap.get(id)],
   })
