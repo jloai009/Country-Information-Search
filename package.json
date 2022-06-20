@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "start:frontend": "cd front-end && npm start",
+    "start:backend": "cd back-end && npm run start",
+    "start:all": "start npm run start:frontend && start npm run start:backend"
+  },
   "dependencies": {
     "create-react-app": "^5.0.1"
   }
