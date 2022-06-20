@@ -8,12 +8,16 @@ const SearchForm = ({ searchResults, setSearchResults }) => {
   const [searchInProgress, setSearchInProgress] = useState(false)
 
   const handleSearch = async (event) => {
-    const newSearchQuery = event.target.value
+    let newSearchQuery = event.target.value.trimStart()
+    newSearchQuery = newSearchQuery.replace(/\s+/g, " ");
     setSearchInProgress(true)
     setSearchQuery(newSearchQuery)
     let searchResults = []
     if (newSearchQuery.length > 0) {
       searchResults = await countryServices.searchCountry(newSearchQuery)
+    }
+    if (!searchResults) {
+      searchResults = []
     }
     setSearchResults(searchResults)
     setSearchInProgress(false)
